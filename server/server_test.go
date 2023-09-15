@@ -10,10 +10,14 @@ import (
 )
 
 func Test(t *testing.T) {
-	fmt.Println("test")
 	hello := &helloworld.HelloRequest{
 		Name: "Tim",
 	}
 	data, _ := proto.Marshal(hello)
-	fmt.Println(data)
+	res := &helloworld.HelloRequest{}
+	err := proto.Unmarshal(data, res)
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Printf("%+v\n", res)
 }

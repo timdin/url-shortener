@@ -19,3 +19,7 @@
 
 # Go workspace file
 go.work
+
+# Dumps from the storage container
+mysql/*
+redis/*

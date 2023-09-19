@@ -1,0 +1,47 @@
+version: '3.5'
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - backend-bridge
+  redis:
+    image: redis:5.0.5
+    container_name: redis
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redis:/data
+    networks:
+      - backend-bridge
+  url_shorterner:
+    container_name: url_shorterner
+    ports:
+      - 8080:8080
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: ./main
+    restart: always
+    networks:
+      - backend-bridge
+    depends_on:
+      - mysql
+      - redis
+    stdin_open: true 
+    tty: true
+networks:
+  backend-bridge:
+    driver: bridge

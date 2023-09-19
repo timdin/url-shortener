@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package urlshortener;
+option go_package = "github.com/timdin/url-shortener/proto/urlshortener";
+
+service URLShortener {
+    rpc Shortern(ShorternRequest) returns (ShorternResponse);
+}
+
+message ShorternRequest {
+    string URL = 1;
+}
+
+message ShorternResponse {
+    string URL = 1;
+    string error = 2;
+}
+

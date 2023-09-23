@@ -13,9 +13,13 @@ import (
 func ShortenDto2Entity(dto *urlshortener.ShorternRequest) *model.URL {
 	// since the time format has been validated in validator, we can safely parse it here
 	expTimestamp, _ := time.Parse(constants.TIME_FORMAT, dto.GetExpiration())
+	expTime := &expTimestamp
+	if expTimestamp.IsZero() {
+		expTime = nil
+	}
 	res := &model.URL{
 		LongURL:   dto.GetURL(),
-		ExpiresAt: expTimestamp,
+		ExpiresAt: expTime,
 	}
 	return res
 }

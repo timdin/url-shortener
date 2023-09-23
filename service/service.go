@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"net/http"
 	"url-shortener/convert"
 	"url-shortener/dao"
@@ -32,13 +33,18 @@ func NewURLHandler(db *dao.MysqlDao, redis *redis.Client, wrapper internal.URLWr
 }
 
 func (u *URLHandler) Redirect(c *gin.Context) {
-	// TODO: get id from path
-	// TODO: get url from db
-	// TODO: redirect
+	// get id from path
+	log.Println(c.Param("id"))
+	// get url from db
+	if entity, err := u.db.QueryURLRecord(c.Param("id")); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	} else {
+		c.Redirect(http.StatusMovedPermanently, entity.LongURL)
+	}
 }
 
 func (u *URLHandler) Shortern(c *gin.Context) {
-	defer c.Request.Body.Close()
 	req := &urlshortener.ShorternRequest{}
 	res := &urlshortener.ShorternResponse{}
 	entity := &model.URL{}
@@ -53,7 +59,6 @@ func (u *URLHandler) Shortern(c *gin.Context) {
 	}
 
 	// generate short url with hash
-	// put these into converter
 	entity = convert.ShortenDto2Entity(req)
 	entity.ShortURL = internal.HashURL(entity.LongURL)
 

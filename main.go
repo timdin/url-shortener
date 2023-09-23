@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-	// TODO: package this into a function
 	configs := config.NewConfig()
 	log.Println(internal.DumpRequest(configs))
 

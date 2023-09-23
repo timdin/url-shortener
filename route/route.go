@@ -1,15 +1,21 @@
 package route
 
 import (
+	"time"
 	"url-shortener/service"
+
+	cache "github.com/chenyahui/gin-cache"
+	"github.com/chenyahui/gin-cache/persist"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Route(r *gin.Engine, service *service.URLHandler) {
-	g := r.Group("/redirect")
+	redisStore := persist.NewRedisStore(service.Redis)
+	r.POST("/shortern", service.Shortern)
+	g := r.Group("/")
 	{
-		g.POST("/", service.Shortern)
 		g.GET("/:id", service.Redirect)
+		g.GET("/cache/:id", service.Redirect, cache.CacheByRequestURI(redisStore, 1*time.Minute))
 	}
 }

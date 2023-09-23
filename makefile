@@ -5,7 +5,11 @@ test:
 	go test -v ./...
 
 run:
-	go run main.go
+	docker compose up
 
 build:
 	docker compose build
+
+update:
+	make build
+	make run

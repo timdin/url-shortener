@@ -1,0 +1,12 @@
+service:
+  port: 8080
+  host: http://localhost
+  accept_expired: true
+  accept_no_expire: false
+
+database:
+  driver: mysql
+  conn: test:test@tcp(host.docker.internal:3306)/test
+
+redis:
+  conn: host.docker.internal:6379

@@ -3,10 +3,12 @@ package service
 import (
 	"log"
 	"net/http"
+	"time"
 	"url-shortener/config"
 	"url-shortener/convert"
 	"url-shortener/dao"
 	"url-shortener/internal"
+	"url-shortener/logging"
 	"url-shortener/model"
 	"url-shortener/proto/urlshortener"
 	"url-shortener/validator"
@@ -32,7 +34,6 @@ func NewURLHandler(config *config.Config) *URLHandler {
 
 func (u *URLHandler) Redirect(c *gin.Context) {
 	// get id from path
-	log.Println(c.Param("id"))
 	// get url from storage
 	// if not found or invalid cache was hit, return 404
 	if entity, err := u.dao.QueryURLRecord(c.Param("id")); err != nil {
@@ -40,6 +41,10 @@ func (u *URLHandler) Redirect(c *gin.Context) {
 		return
 	} else {
 		log.Println(internal.DumpStruct(entity))
+		logging.SugarLogger.Infow("redirect",
+			"resp", internal.DumpStruct(entity),
+			"timestamp", time.Now().Format(time.RFC3339),
+		)
 		c.Redirect(http.StatusMovedPermanently, entity.LongURL)
 	}
 }
@@ -52,6 +57,10 @@ func (u *URLHandler) Shortern(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	logging.SugarLogger.Infow("shortern",
+		"req", internal.DumpStruct(req),
+		"timestamp", time.Now().Format(time.RFC3339),
+	)
 
 	if err := u.valid.Validate(req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -68,6 +77,10 @@ func (u *URLHandler) Shortern(c *gin.Context) {
 		return
 	}
 	res = convert.Entity2ShortenDto(entity, u.urlWrapper)
+	logging.SugarLogger.Infow("shortern",
+		"resp", internal.DumpStruct(res),
+		"timestamp", time.Now().Format(time.RFC3339),
+	)
 
 	c.JSON(http.StatusOK, res)
 	return

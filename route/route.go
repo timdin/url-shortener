@@ -7,9 +7,8 @@ import (
 )
 
 func Route(r *gin.Engine, service *service.URLHandler) {
+	// shortern routing
 	r.POST("/shortern", service.Shortern)
-	g := r.Group("/")
-	{
-		g.GET("/:id", service.Redirect)
-	}
+	// redirect routing
+	r.GET("/:id", service.Redirect)
 }

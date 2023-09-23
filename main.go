@@ -1,16 +1,20 @@
 package main
 
 import (
-	"log"
+	"time"
 	"url-shortener/config"
 	"url-shortener/internal"
+	"url-shortener/logging"
 	server "url-shortener/server"
 )
 
 func main() {
 	configs := config.NewConfig()
-	log.Println(internal.DumpStruct(configs))
-	// TODO: make a proper logger
+	logging.InitLogger()
+	logging.SugarLogger.Infow("init service",
+		"configs", internal.DumpStruct(configs),
+		"timestamp", time.Now().Format(time.RFC3339),
+	)
 
 	r := server.SetupServer(configs)
 

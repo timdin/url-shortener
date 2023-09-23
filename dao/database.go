@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"log"
 	"time"
 	"url-shortener/model"
 
@@ -20,7 +19,6 @@ type DBImpl struct {
 }
 
 func initDB(dbConfig string) (*DBImpl, error) {
-	log.Println(dbConfig)
 	db, err := gorm.Open(mysql.Open(dbConfig), &gorm.Config{})
 	if err != nil {
 		return nil, err

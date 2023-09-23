@@ -1,0 +1,57 @@
+{
+	"info": {
+		"_postman_id": "afc0527c-142a-4be6-b652-a7569cc682f9",
+		"name": "url-shorterner",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1667179"
+	},
+	"item": [
+		{
+			"name": "test redirect",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/123",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"123"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "shortern",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"URL\": \"https://yahoo.com\",\n    \"Expiration\": \"2023-09-30T00:00:00Z\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/shortern",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"shortern"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

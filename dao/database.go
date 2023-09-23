@@ -10,11 +10,16 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type MysqlDao struct {
+type DBinterface interface {
+	WriteDB(entity *model.URL) error
+	QueryDB(shortURL string) (*model.URL, error)
+}
+
+type DBImpl struct {
 	db *gorm.DB
 }
 
-func InitDB(dbConfig string) (*MysqlDao, error) {
+func initDB(dbConfig string) (*DBImpl, error) {
 	log.Println(dbConfig)
 	db, err := gorm.Open(mysql.Open(dbConfig), &gorm.Config{})
 	if err != nil {
@@ -24,14 +29,14 @@ func InitDB(dbConfig string) (*MysqlDao, error) {
 	if migrateErr != nil {
 		return nil, err
 	}
-	return &MysqlDao{
+	return &DBImpl{
 		db: db,
 	}, nil
 }
 
-func (dao *MysqlDao) WriteURLRecord(entity *model.URL) error {
+func (db *DBImpl) WriteDB(entity *model.URL) error {
 	// support upsert with same url to update the expiration
-	err := dao.db.Clauses(clause.OnConflict{
+	err := db.db.Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "short_url"}},
 		DoUpdates: clause.Assignments(map[string]interface{}{
 			"expires_at": entity.ExpiresAt,
@@ -40,10 +45,9 @@ func (dao *MysqlDao) WriteURLRecord(entity *model.URL) error {
 	return err
 }
 
-func (dao *MysqlDao) QueryURLRecord(shortURL string) (*model.URL, error) {
+func (db *DBImpl) QueryDB(shortURL string) (*model.URL, error) {
 	res := &model.URL{}
-	// TODO: add cache here
-	if err := dao.db.Where("short_url = ?", shortURL).Where("expires_at > ? OR expires_at IS NULL ", time.Now()).First(res).Error; err != nil {
+	if err := db.db.Where("short_url = ?", shortURL).Where("expires_at > ? OR expires_at IS NULL ", time.Now()).First(res).Error; err != nil {
 		return nil, err
 	}
 	return res, nil

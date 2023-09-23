@@ -3,6 +3,7 @@ package service
 import (
 	"log"
 	"net/http"
+	"url-shortener/config"
 	"url-shortener/convert"
 	"url-shortener/dao"
 	"url-shortener/internal"
@@ -11,35 +12,34 @@ import (
 	"url-shortener/validator"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
 )
 
 // db access will be a property
 type URLHandler struct {
 	mockDB     map[string]string
-	db         *dao.MysqlDao
-	Redis      *redis.Client
+	dao        dao.Dao
 	valid      validator.Validator
 	urlWrapper internal.URLWrapper
 }
 
-func NewURLHandler(db *dao.MysqlDao, redis *redis.Client, wrapper internal.URLWrapper, validator validator.Validator) *URLHandler {
+func NewURLHandler(config *config.Config) *URLHandler {
 	return &URLHandler{
-		db:         db,
-		Redis:      redis,
-		urlWrapper: wrapper,
-		valid:      validator,
+		dao:        dao.InitDao(config),
+		urlWrapper: internal.NewURLWrapper(config.Server),
+		valid:      validator.NewUrlValidator(config.Server.AcceptExpired, config.Server.AcceptNoExpire),
 	}
 }
 
 func (u *URLHandler) Redirect(c *gin.Context) {
 	// get id from path
 	log.Println(c.Param("id"))
-	// get url from db
-	if entity, err := u.db.QueryURLRecord(c.Param("id")); err != nil {
+	// get url from storage
+	// if not found or invalid cache was hit, return 404
+	if entity, err := u.dao.QueryURLRecord(c.Param("id")); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	} else {
+		log.Println(internal.DumpStruct(entity))
 		c.Redirect(http.StatusMovedPermanently, entity.LongURL)
 	}
 }
@@ -63,7 +63,7 @@ func (u *URLHandler) Shortern(c *gin.Context) {
 	entity.ShortURL = internal.HashURL(entity.LongURL)
 
 	// save to db
-	if err := u.db.WriteURLRecord(entity); err != nil {
+	if err := u.dao.WriteURLRecord(entity); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

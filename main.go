@@ -9,7 +9,8 @@ import (
 
 func main() {
 	configs := config.NewConfig()
-	log.Println(internal.DumpRequest(configs))
+	log.Println(internal.DumpStruct(configs))
+	// TODO: make a proper logger
 
 	r := server.SetupServer(configs)
 

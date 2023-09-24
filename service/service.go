@@ -18,7 +18,6 @@ import (
 
 // db access will be a property
 type URLHandler struct {
-	mockDB     map[string]string
 	dao        dao.Dao
 	valid      validator.Validator
 	urlWrapper internal.URLWrapper

@@ -10,6 +10,7 @@ import (
 
 // ShortenDto2Entity: convert ShorternRequest to URL entity
 // NOTE: since the protobuf timestamp has poor json support, we use string instead
+// TODO: add unit test
 func ShortenDto2Entity(dto *urlshortener.ShorternRequest) *model.URL {
 	// since the time format has been validated in validator, we can safely parse it here
 	expTimestamp, _ := time.Parse(constants.TIME_FORMAT, dto.GetExpiration())

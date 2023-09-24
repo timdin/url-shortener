@@ -9,8 +9,8 @@ import (
 )
 
 type DaoImpl struct {
-	db    *DBImpl
-	cache *CacheImpl
+	db    DBinterface
+	cache CacheInterface
 }
 
 type Dao interface {
